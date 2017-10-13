@@ -27,7 +27,7 @@ Public STR_WS_NAME_CONDITION_PROCESS_MATERIAL As String
 
 Public col_processes As Collection
 Public col_process_versions As Collection
-Public col_areas As New Collection
+Public col_areas As Collection
 Public col_area_steps As Collection
 Public col_places As Collection
 Public col_kpis As Collection
@@ -162,6 +162,8 @@ Private Sub Class_Initialize()
     STR_WS_NAME_MATERIAL_GROUP_WH_RESOLVER = "db.md.mat_grp_wh.resolver"
     
     STR_WS_NAME_CONDITION_PROCESS_MATERIAL = "db.md.condition_process_mat"
+    
+    Set col_areas = New Collection
 End Sub
 
 Public Function process_record(mdl_id As String, obj_record As Object)
