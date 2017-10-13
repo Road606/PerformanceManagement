@@ -9,6 +9,8 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
+Public str_module As String
+
 Public INT_ID_OFFSET As Integer
 Public INT_NAME_OFFSET As Integer
 
@@ -21,7 +23,7 @@ Public Function add_listener(obj_listener As Object)
     col_listeners.add obj_listener
 End Function
 
-Public Function load()
+Public Function load_data()
     single_data_provider.add_listener Me
     single_data_provider.load_data
 End Function
@@ -42,6 +44,8 @@ Next obj_listener
 End Function
 
 Private Sub Class_Initialize()
+
+str_module = new_const_mdl_id.STR_MDL_PLACE
 
 Set col_listeners = New Collection
 

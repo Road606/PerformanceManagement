@@ -27,6 +27,7 @@ Public STR_WS_NAME_CONDITION_PROCESS_MATERIAL As String
 
 Public col_processes As Collection
 Public col_process_versions As Collection
+Public col_areas As New Collection
 Public col_area_steps As Collection
 Public col_places As Collection
 Public col_kpis As Collection
@@ -82,15 +83,15 @@ Private Function load_area_steps()
     Dim obj_mdl_area_step As MDLAreaStepMD
 
     Set obj_mdl_area = New MDLAreaMD
-    obj_mdl_area.init
-    obj_mdl_area.STR_WS_NAME = STR_WS_NAME_AREA_MD '"db.md.area"
+    obj_mdl_area.add_listener Me
+    obj_mdl_area.single_data_provider.STR_WS_NAME = STR_WS_NAME_AREA_MD '"db.md.area"
     
     Set obj_mdl_area_step = New MDLAreaStepMD
     obj_mdl_area_step.init
     obj_mdl_area_step.STR_WS_NAME = STR_WS_NAME_AREA_STEP_MD '"db.md.area.step"
     
     obj_mdl_area.load_data
-    obj_mdl_area_step.load_data obj_mdl_area.col_areas
+    obj_mdl_area_step.load_data Me.col_areas
     
     Set col_area_steps = obj_mdl_area_step.col_area_steps
     
@@ -102,11 +103,10 @@ Private Function load_places()
     Dim obj_mdl_place As MDLPlaceMD
 
     Set obj_mdl_place = New MDLPlaceMD
-    obj_mdl_place.init
-    obj_mdl_place.STR_WS_NAME = STR_WS_NAME_PLACE_MD
+    obj_mdl_place.add_listener
+    obj_mdl_place.single_data_provider.STR_WS_NAME = STR_WS_NAME_PLACE_MD
     obj_mdl_place.load_data
     
-    Set col_places = obj_mdl_place.col_places
     
     Set obj_mdl_place = Nothing
 End Function
@@ -163,3 +163,18 @@ Private Sub Class_Initialize()
     
     STR_WS_NAME_CONDITION_PROCESS_MATERIAL = "db.md.condition_process_mat"
 End Sub
+
+Public Function process_record(mdl_id As String, obj_record As Object)
+       
+    Select Case mdl_id
+        Case new_const_mdl_id.STR_MDL_AREA:
+            col_areas.add obj_record
+            
+        Case new_const_mdl_id.STR_MDL_PLACE:
+            col_places.add obj_record
+            
+        Case Else:
+    
+    End Select
+    
+End Function
