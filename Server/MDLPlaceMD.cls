@@ -37,7 +37,7 @@ obj_place.str_id = rg_record.Offset(0, Me.INT_ID_OFFSET).Value
 obj_place.str_name = rg_record.Offset(0, Me.INT_NAME_OFFSET).Value
 
 For Each obj_listener In Me.col_listeners
-    obj_listener.process_record obj_place
+    obj_listener.process_record str_module, obj_place
 Next obj_listener
 
 
