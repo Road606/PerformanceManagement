@@ -1,4 +1,4 @@
-Attribute VB_Name = "test_mdl_place"
+Attribute VB_Name = "test_mdl_area2"
 Option Explicit
 
 Public Function setup()
@@ -20,16 +20,16 @@ Public Function test_place_data()
     Dim test_collection As New Collection
     Dim listener As New DummyListener
     
-    Dim MDLPlace As New MDLPlaceMD
-    MDLPlace.single_data_provider.STR_DATA_FIRST_CELL = "A2"
-    MDLPlace.single_data_provider.STR_WS_NAME = "db.md.place"
+    Dim MDLArea As New MDLAreaMD
+    MDLArea.single_data_provider.STR_DATA_FIRST_CELL = "A2"
+    MDLArea.single_data_provider.STR_WS_NAME = "db.md.area"
     
     setup
     
     dbl_start = Now
     
-    MDLPlace.add_listener listener
-    MDLPlace.load
+    MDLArea.add_listener listener
+    MDLArea.load_data
     
     dbl_end = Now
     
@@ -39,4 +39,3 @@ Public Function test_place_data()
     
     
 End Function
-

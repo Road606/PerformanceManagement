@@ -1,4 +1,4 @@
-Attribute VB_Name = "test_mdl_place"
+Attribute VB_Name = "test_MD_Dashboard1"
 Option Explicit
 
 Public Function setup()
@@ -14,22 +14,17 @@ Public Function tear_down()
     Application.DisplayAlerts = True
 End Function
 
-Public Function test_place_data()
+Public Function test_md_dashboard_data()
+    Dim obj_dashboard As New MDDashboard1
+    
     Dim dbl_start As Double
     Dim dbl_end As Double
-    Dim test_collection As New Collection
-    Dim listener As New DummyListener
-    
-    Dim MDLPlace As New MDLPlaceMD
-    MDLPlace.single_data_provider.STR_DATA_FIRST_CELL = "A2"
-    MDLPlace.single_data_provider.STR_WS_NAME = "db.md.place"
     
     setup
     
     dbl_start = Now
     
-    MDLPlace.add_listener listener
-    MDLPlace.load
+    obj_dashboard.load
     
     dbl_end = Now
     
@@ -37,6 +32,4 @@ Public Function test_place_data()
     
     Debug.Print Format(dbl_end - dbl_start, "HH:MM:SS")
     
-    
 End Function
-
