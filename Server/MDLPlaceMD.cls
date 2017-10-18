@@ -1,3 +1,4 @@
+
 VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
@@ -55,3 +56,4 @@ INT_OFFSET_ID = 0
 INT_OFFSET_NAME = 1
 
 End Sub
+

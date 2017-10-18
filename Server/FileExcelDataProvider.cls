@@ -24,6 +24,9 @@ Public BOOL_EXTERNAL_DATA_FILE_VISIBILITY As Boolean
 Public STR_WS_NAME As String
 Public STR_DATA_FIRST_CELL As String
 
+' info
+Public obj_info As FileExcelDataProviderInfo
+
 ' status bar
 Public STR_STATUS_BAR_PREFIX As String
 Public STR_STATUS_BAR_PREFIX_LOADING As String
@@ -37,6 +40,9 @@ Public bool_save_mode_on As Boolean
 Public bool_visibility_mode As Boolean
 Public bool_clear_after_open_status As Boolean
 Public bool_clear_before_close_status As Boolean
+
+'Public bool_record_as_processed_on As Boolean
+Public str_completeness_status As String
 
 ' listeners must implement:
   ' load_record rg_record:Range
@@ -113,6 +119,10 @@ Public Function load_data()
     Do While rg_record.Value <> ""
         DoEvents
                                         
+'        If rg_record.Value = "357020105500244851" Then
+'            DoEvents
+'        End If
+                                        
         On Error GoTo ERR_PROCESS
         For Each obj_listener In col_listeners
             obj_listener.load_record rg_record
@@ -150,6 +160,8 @@ Private Sub Class_Initialize()
     bool_visibility_mode = False
     bool_clear_after_open_status = False
     bool_clear_before_close_status = False
+    
+    'bool_record_as_processed_on = True
     
     Set col_listeners = New Collection
                             

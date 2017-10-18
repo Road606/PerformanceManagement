@@ -25,11 +25,6 @@ Public INT_OFFSET_KPI_ID As Integer
 Public INT_OFFSET_KPI_NAME As Integer
 Public INT_OFFSET_KPI_STATUS As Integer
 
-'Public INT_APP_WORK_COL_DATE_OFFSET As Integer
-'Public STR_APP_WORK_FIRST_RG As String
-'
-'Public BYTE_STEP_STATUS As Byte
-
 Public obj_multi_data_provider As MultiFileExcelDataProvider
 Public obj_current_data_provider_info As FileExcelDataProviderInfo
 Public str_static_data_provider_id As String
@@ -54,15 +49,9 @@ Private Sub Class_Initialize()
     INT_OFFSET_KPI_ID = 8
     INT_OFFSET_KPI_NAME = 9
     INT_OFFSET_KPI_STATUS = 10
-    
-    ' app help sheet
-'    INT_APP_WORK_COL_DATE_OFFSET = 0
-'    STR_APP_WORK_FIRST_RG = "A2"
-    
-    'Set obj_multi_data_provider = New MultiFileExcelDataProvider
+        
     str_static_data_provider_id = "static"
     Set col_listeners = New Collection
-'    Set col_provider_info_listeners = New Collection
 End Sub
 
 Public Function set_clear_data()
@@ -100,6 +89,7 @@ INFO_PROVIDER_NOT_FOUND:
     Set obj_data_provider = _
         obj_multi_data_provider.create_data_provider_read_mode( _
             str_provider_id, obj_data_provider_util.retrieve_creation_file_name)
+    obj_data_provider.bool_save_mode_on = True ' to be able save the file as empty one when loading is finished
     Resume Next
 INFO_FILE_NOT_EXISTS:
     ' file not exists yet => remove provider
@@ -127,11 +117,12 @@ Public Function load_record(rg_record As Range)
     obj_kpi_on_time_result_pallet.str_process_name = rg_record.Offset(0, INT_OFFSET_PROCESS_NAME).Value
     obj_kpi_on_time_result_pallet.str_process_step = rg_record.Offset(0, INT_OFFSET_PROCESS_STEP).Value
       ' kpi
+    obj_kpi_on_time_result_pallet.str_kpi_id = rg_record.Offset(0, INT_OFFSET_KPI_ID).Value
     obj_kpi_on_time_result_pallet.str_kpi_name = rg_record.Offset(0, INT_OFFSET_KPI_NAME).Value
     obj_kpi_on_time_result_pallet.str_kpi_status = rg_record.Offset(0, INT_OFFSET_KPI_STATUS).Value
     
     For Each obj_listener In col_listeners
-        obj_listener.process_result_record obj_kpi_on_time_result_pallet
+        obj_listener.kpi_result_process_record obj_kpi_on_time_result_pallet
     Next
 End Function
 
@@ -191,7 +182,9 @@ Public Function save_record(obj_kpi_on_time_result_pallet As KPIOnTimeResultPall
     rg_record.Offset(0, INT_OFFSET_PALLET).NumberFormat = "@"
     rg_record.Offset(0, INT_OFFSET_PALLET).Value = obj_kpi_on_time_result_pallet.str_id
     ' date and time
+    rg_record.Offset(0, INT_OFFSET_DATE).NumberFormat = "@"
     rg_record.Offset(0, INT_OFFSET_DATE).Value = obj_kpi_on_time_result_pallet.str_date
+    rg_record.Offset(0, INT_OFFSET_TIME).NumberFormat = "@"
     rg_record.Offset(0, INT_OFFSET_TIME).Value = obj_kpi_on_time_result_pallet.str_time
     ' shift
     rg_record.Offset(0, INT_OFFSET_SHIFT).Value = obj_kpi_on_time_result_pallet.str_shift

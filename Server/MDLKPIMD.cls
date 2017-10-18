@@ -1,3 +1,4 @@
+
 VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
@@ -102,3 +103,4 @@ Set single_data_provider = New FileExcelDataProvider
     STR_TYPE_FLOW = "FLOW"
 
 End Sub
+

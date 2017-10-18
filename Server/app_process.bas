@@ -1,4 +1,4 @@
-Attribute VB_Name = "test_new_mdl_history"
+Attribute VB_Name = "app_process"
 Option Explicit
 
 Public obj_mdl_data_process_finished As MDLDataProcessExcel
@@ -15,7 +15,7 @@ Public Function setup()
     ' app
     hndl_log.init
     hndl_log.str_path = ThisWorkbook.Path & "\log\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
-    hndl_log.str_file_name = "log.xlsx"
+    hndl_log.str_file_name = "log-performance.xlsx"
     hndl_log.open_data
 
     bin.init
@@ -63,11 +63,6 @@ Public Function setup()
     obj_data_provider_util.str_file_prefix = "history-process"
     obj_data_provider_util.str_file_name_separator = "-"
     obj_data_provider_util.str_file_appendix = ".xlsx"
-    'Debug.Print obj_data_provider_util.retrieve_provider_id_reverse("history-process-17052203.xlsx")
-    'Dim obj_period As Period
-    'Set obj_period = obj_data_provider_util.retrieve_period("17052203")
-          ' add to multi data provider
-'    Set obj_mdl_data_process_finished.obj_data_provider_util = obj_data_provider_util
     Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
     
       ' unfinished
@@ -113,44 +108,7 @@ Public Function setup()
     obj_data_provider_util.str_file_prefix = "history-process-unfinished"
     obj_data_provider_util.str_file_name_separator = "-"
     obj_data_provider_util.str_file_appendix = ".xlsx"
-    'Debug.Print obj_data_provider_util.retrieve_provider_id_reverse("history-process-17052203.xlsx")
-    'Dim obj_period As Period
-    'Set obj_period = obj_data_provider_util.retrieve_period("17052203")
-          ' add to multi data provider
-'    Set obj_mdl_data_process_unfinished.obj_data_provider_util = obj_data_provider_util
     Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
-    
-'      ' unfinished
-'    Set obj_mdl_data_process_unfinished = New MDLDataProcessExcel
-'    obj_mdl_data_process_unfinished.BYTE_STEP_STATUS = new_db_process_step.BYTE_OPEN
-'    'obj_mdl_data_process_unfinished.str_save_mode = obj_mdl_data_process_finished.STR_SAVE_MODE_HOURLY
-'    obj_mdl_data_process_unfinished.add_listener New ListenerProcessToPallet
-'        ' multi data provider
-'    Set obj_multi_data_provider = New MultiFileExcelDataProvider
-'          ' general
-'    obj_multi_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_INTERNAL
-'          ' sheet
-'    obj_multi_data_provider.STR_WS_NAME = "data.process.unfinished"
-'          ' processed file
-'    obj_multi_data_provider.STR_PROCESSED_FILE_PATH = ThisWorkbook.Path & "\log\"
-'    obj_multi_data_provider.STR_PROCESSED_FILE_NAME = "history_process_unfinished-file_processed.xlsx" '"file_processed.xlsx"
-'          ' add to multi data provider
-'    Set obj_mdl_data_process_unfinished.obj_multi_data_provider = obj_multi_data_provider
-'        ' specific provider
-'    Set obj_data_provider = New FileExcelDataProvider
-'    obj_data_provider.STR_WS_NAME = "data.process.unfinished"
-'    obj_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_INTERNAL
-'    obj_data_provider.add_listener obj_mdl_data_process_unfinished
-'    obj_mdl_data_process_unfinished.obj_multi_data_provider.add_provider obj_data_provider
-'        ' data provider util
-'    Set obj_data_provider_util = New FileExcelDataProviderUtil
-'          ' save mode
-'    obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY
-'          ' add to model
-''    Set obj_mdl_data_process_unfinished.obj_data_provider_util = obj_data_provider_util
-'    Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
-'         ' add to pallet controller
-'    Set new_ctrl_pallet.obj_mdl_unfinished = obj_mdl_data_process_unfinished
       
     ' master data for process
     new_ctrl_process_master.init
@@ -170,7 +128,7 @@ Public Function setup()
     
     ' mdl history
     new_mdl_history.init
-    new_mdl_history.STR_PATH_INBOUND = ThisWorkbook.Path & "\data\inbound\history-pallet\"
+    new_mdl_history.STR_PATH_INBOUND = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\history\v2\history_pallet\data\outbound\" 'ThisWorkbook.Path & "\data\inbound\history-pallet\"
     new_mdl_history.STR_WS_NAME = "data" '"Sheet1"
     new_mdl_history.str_file_appendix = ".xls"
     new_mdl_history.STR_HBW_USER = "DK2WEBHBW"
@@ -206,7 +164,7 @@ Public Function tear_down()
     Application.DisplayAlerts = True
 End Function
 
-Public Function test_process()
+Public Function run()
     Dim dbl_start As Double
     Dim dbl_end As Double
 
@@ -216,8 +174,6 @@ Public Function test_process()
     
     obj_mdl_data_process_unfinished.set_clear_data
     obj_mdl_data_process_unfinished.load_static
-    'obj_mdl_data_process_unfinished.obj_multi_data_provider.close_providers
-'    new_mdl_data_process.obj_model.obj_unfinished.load_multi
     new_mdl_history.process
     ' make post process actions in listeners
       ' save unfinished
@@ -230,5 +186,6 @@ Public Function test_process()
     
     tear_down
 End Function
+
 
 

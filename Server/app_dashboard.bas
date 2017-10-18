@@ -1,4 +1,4 @@
-Attribute VB_Name = "test_ctrl_dashboard1"
+Attribute VB_Name = "app_dashboard"
 Option Explicit
 
 
@@ -22,7 +22,7 @@ Public Function setup()
 
     hndl_log.init
     hndl_log.str_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
-    hndl_log.str_file_name = "log.xlsx"
+    hndl_log.str_file_name = "log-performance.xlsx"
     hndl_log.open_data
 End Function
 
@@ -32,7 +32,7 @@ Public Function tear_down()
     Application.DisplayAlerts = True
 End Function
 
-Public Function test_run()
+Public Function run()
     Dim dbl_start As Double
     Dim dbl_end As Double
     
@@ -55,6 +55,7 @@ Public Function test_run()
     
     Debug.Print Format(dbl_end - dbl_start, "HH:MM:SS")
 End Function
+
 
 
 

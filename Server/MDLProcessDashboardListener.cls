@@ -132,6 +132,8 @@ Public Function kpi_pallet_loading_data_is_about_to_start(obj_period As Period)
     Dim obj_date_start As Date
     Dim obj_date_end As Date
     
+    Debug.Print "kpi_pallet_loading_data_is_about_to_start(obj_period As Period) started"
+    
     obj_date_start = DateValue(obj_period.str_start) + TimeValue(obj_period.str_start)
     obj_date_end = DateValue(obj_period.str_end) + TimeValue(obj_period.str_end)
     
@@ -143,7 +145,7 @@ End Function
 ' # interface method for listening MDLKPIOnTimePallet
 Public Function kpi_pallet_process_record(obj_kpi_on_pallet As KPIOnTimePallet)
     Dim obj_listener As Object
-    
+    Debug.Print "kpi_pallet_process_record started"
     For Each obj_listener In col_listeners
         obj_listener.kpi_pallet_process_record obj_kpi_on_pallet
     Next
@@ -152,7 +154,7 @@ End Function
 ' # interface method for listening MDLKPIOnTimePallet
 Public Function kpi_pallet_loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
-    
+    Debug.Print "kpi_pallet_loading_data_has_finished started"
     For Each obj_listener In col_listeners
         obj_listener.save obj_provider_info
     Next
@@ -169,7 +171,7 @@ End Function
 Private Function create_mdl_kpi_on_time_pallet() As MDLKPIOnTimePallet
     ' # implement loading settings via configuration file
     Dim obj_multi_data_provider As MultiFileExcelDataProvider
-    Dim obj_data_provider_util As FileExcelDataProviderUtil
+    Dim obj_data_provider_util As FileExcelDataProviderStatusUtil
 
     Dim obj_listener As Object
 
@@ -189,7 +191,7 @@ Private Function create_mdl_kpi_on_time_pallet() As MDLKPIOnTimePallet
     Set create_mdl_kpi_on_time_pallet.obj_multi_data_provider = obj_multi_data_provider
     obj_multi_data_provider.add_listener create_mdl_kpi_on_time_pallet
         ' data provider util
-    Set obj_data_provider_util = New FileExcelDataProviderUtil
+    Set obj_data_provider_util = New FileExcelDataProviderStatusUtil
           ' save mode
     obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY_MINUTE
           ' file
@@ -201,6 +203,10 @@ Private Function create_mdl_kpi_on_time_pallet() As MDLKPIOnTimePallet
     obj_data_provider_util.str_file_prefix = "history-kpi_pallet"
     obj_data_provider_util.str_file_name_separator = "-"
     obj_data_provider_util.str_file_appendix = ".xlsx"
+            ' regex
+    obj_data_provider_util.str_regex_pattern = "history-kpi_pallet-(\d{10})-(opened|closed)"
+    obj_data_provider_util.int_regex_id = 0
+    obj_data_provider_util.int_regex_status = 1
           ' add to multi data provider
     Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
 End Function
