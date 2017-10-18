@@ -1,3 +1,4 @@
+
 VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
@@ -9,17 +10,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Const str_module As String = "MDLKPIMD"
-
-Public str_path As String
-Public str_file_name As String
-Public str_file_appendix As String
-
-Public BOOL_EXTERNAL_DATA_FILE_VISIBILITY As Boolean
-
-' local data
-Public STR_WS_NAME As String
-Public STR_DATA_FIRST_CELL As String
+Public str_module As String
 
 Public INT_OFFSET_ID As Integer
 Public INT_OFFSET_PROCESS_ID As Integer
@@ -29,120 +20,59 @@ Public INT_OFFSET_TYPE As Integer
 Public INT_OFFSET_KPI_TARGET As Integer
 Public INT_OFFSET_CS_NAME As Integer
 
-' objects
-Public STR_ID_SEPARATOR As String
-Public STR_PROCESS_ID_SEPARATOR As String
-
-' status bar
-Public STR_STATUS_BAR_PREFIX As String
-Public STR_STATUS_BAR_PREFIX_LOADING As String
-Public STR_STATUS_BAR_PREFIX_LOADING_FINISHED As String
-
-Public wb As Workbook
-
 Public STR_TYPE_ON_TIME As String
 Public STR_TYPE_FLOW As String
 
+Public single_data_provider As FileExcelDataProvider
+
+Public col_listeners As Collection
+Public col_processes As Collection
 Public col_kpis As Collection
 
-Public Property Get file_path() As String
-    file_path = str_path & str_file_name
-End Property
 
-Public Function init()
-    STR_DATA_FIRST_CELL = "A2"
-    STR_ID_SEPARATOR = "-"
-    STR_PROCESS_ID_SEPARATOR = ";"
-    'STR_FIRST_ROW_TBL = "A1:J1"
-    'STR_FIRST_ROW_DATA = "A2:J2"
+Public Function add_listener(obj_listener As Object)
+    col_listeners.add obj_listener
+End Function
+
+Public Function load_data(col_kpi As Collection, Optional col_proces As Collection)
     
-    'STR_MASTER_MISC_ID = "Miscellaneous"
-    
-    INT_OFFSET_ID = 0
-    INT_OFFSET_PROCESS_ID = 1
-    INT_OFFSET_PROCESS_VERSION = 2
-    INT_OFFSET_ABBREV = 3
-    INT_OFFSET_TYPE = 4
-    INT_OFFSET_KPI_TARGET = 5
-    INT_OFFSET_CS_NAME = 6
-    
-    STR_TYPE_ON_TIME = "ON_TIME"
-    STR_TYPE_FLOW = "FLOW"
-    
-    Set col_kpis = New Collection
-                            
-    ' status bar
-    STR_STATUS_BAR_PREFIX = "Process Factory->"
-    STR_STATUS_BAR_PREFIX_LOADING = "Loading ..."
-    STR_STATUS_BAR_PREFIX_LOADING_FINISHED = "Loading has finished"
+    Set col_processes = col_proces
+    Set col_kpis = col_kpi
+    single_data_provider.add_listener Me
+    single_data_provider.load_data
     
 End Function
 
-Public Function open_data()
-    If file_path = "" Then
-        Set wb = ThisWorkbook
-    Else
-        Set wb = util_file.open_wb(file_path, is_visible:=BOOL_EXTERNAL_DATA_FILE_VISIBILITY)
-    End If
-End Function
+Public Function load_record(rg_record As Range)
+Dim obj_listener As Object
+Dim obj_kpi As Object
 
-Public Function close_data()
-    If Not wb Is ThisWorkbook Then
-        Windows(wb.Name).Visible = True
-        wb.Close SaveChanges:=False
-    End If
-    
-    Set wb = Nothing
-End Function
+On Error GoTo INFO_NEW_KPI_SETTING
+    Set obj_kpi = col_kpis(rg_record.Offset(0, INT_OFFSET_ID).Value)
+On Error GoTo 0
 
-Public Function load_data(Optional col_processes As Collection)
-    Dim obj_kpi As Object
+If Not obj_kpi.obj_process Is Nothing Then
+    obj_kpi.add_process_version obj_kpi.obj_process.col_versions(rg_record.Offset(0, INT_OFFSET_PROCESS_VERSION).Value)
+End If
 
-    Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING
+Exit Function
 
-    open_data
-    ' init
-    Set rg_record = wb.Worksheets(STR_WS_NAME).Range(STR_DATA_FIRST_CELL)
-    
-    Do While rg_record.Value <> ""
-        DoEvents
-                                        
-        On Error GoTo INFO_NEW_KPI_SETTING
-        Set obj_kpi = col_kpis(rg_record.Offset(0, INT_OFFSET_ID).Value)
-        On Error GoTo 0
-        
-        update obj_kpi, rg_record
-        ' move to next record
-        Set rg_record = rg_record.Offset(1)
-    Loop
-
-    ' clean up
-    Set obj_kpi = Nothing
-    close_data
-    
-    Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING_FINISHED
-    Exit Function
 INFO_NEW_KPI_SETTING:
-    Set obj_kpi = create(rg_record, col_processes)
-    col_kpis.add obj_kpi, obj_kpi.str_id 'retrieve_id_from_config(rg_record)
-    Resume Next
-ERR_CREATION_PROCESS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Unexpected error occurred during kpi master data creation."
-    Resume Next
-End Function
+Set obj_kpi = create_kpi(rg_record)
+obj_kpi.str_id = rg_record.Offset(0, INT_OFFSET_ID).Value
+obj_kpi.str_abbrev = rg_record.Offset(0, INT_OFFSET_ABBREV).Value
+obj_kpi.str_type = rg_record.Offset(0, INT_OFFSET_TYPE).Value
+obj_kpi.dbl_target = rg_record.Offset(0, INT_OFFSET_KPI_TARGET).Value
+obj_kpi.str_name = rg_record.Offset(0, INT_OFFSET_CS_NAME).Value
 
-' config
-Public Function create(rg_record As Range, col_processes As Collection) As Object
-    Set create = create_kpi(rg_record)
-    create.str_id = rg_record.Offset(0, INT_OFFSET_ID).Value
-    create.str_abbrev = rg_record.Offset(0, INT_OFFSET_ABBREV).Value
-    create.str_type = rg_record.Offset(0, INT_OFFSET_TYPE).Value
-    create.dbl_target = rg_record.Offset(0, INT_OFFSET_KPI_TARGET).Value
-    create.str_name = rg_record.Offset(0, INT_OFFSET_CS_NAME).Value
-    
-    If Not col_processes Is Nothing Then
-        create.obj_process = col_processes(rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value)
-    End If
+If Not col_processes Is Nothing Then
+    obj_kpi.obj_process = col_processes(rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value)
+End If
+
+For Each obj_listener In Me.col_listeners
+    obj_listener.process_record str_module, obj_kpi
+Next obj_listener
+
 End Function
 
 Private Function create_kpi(rg_record) As Object
@@ -153,13 +83,24 @@ Private Function create_kpi(rg_record) As Object
     End Select
 End Function
 
-Public Function update(obj_kpi As Object, rg_record As Range)
-    If Not obj_kpi.obj_process Is Nothing Then
-        obj_kpi.add_process_version obj_kpi.obj_process.col_versions(rg_record.Offset(0, INT_OFFSET_PROCESS_VERSION).Value)
-    End If
-End Function
+Private Sub Class_Initialize()
 
+str_module = new_const_mdl_id.STR_MDL_KPI
 
+Set col_listeners = New Collection
 
+Set single_data_provider = New FileExcelDataProvider
 
+    INT_OFFSET_ID = 0
+    INT_OFFSET_PROCESS_ID = 1
+    INT_OFFSET_PROCESS_VERSION = 2
+    INT_OFFSET_ABBREV = 3
+    INT_OFFSET_TYPE = 4
+    INT_OFFSET_KPI_TARGET = 5
+    INT_OFFSET_CS_NAME = 6
+    
+    STR_TYPE_ON_TIME = "ON_TIME"
+    STR_TYPE_FLOW = "FLOW"
+
+End Sub
 
