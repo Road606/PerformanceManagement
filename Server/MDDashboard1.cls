@@ -115,9 +115,9 @@ Public Function load_kpis()
     Dim obj_mdl_kpi_limit As MDLKPIOnTimeLimitsMD
 
     Set obj_mdl_kpi = New MDLKPIMD
-    obj_mdl_kpi.init
-    obj_mdl_kpi.STR_WS_NAME = STR_WS_NAME_KPI
-    obj_mdl_kpi.load_data col_processes
+    obj_mdl_kpi.add_listener Me
+    obj_mdl_kpi.single_data_provider.STR_WS_NAME = STR_WS_NAME_KPI
+    obj_mdl_kpi.load_data col_kpis, col_processes
     
     Set obj_mdl_kpi_limit = New MDLKPIOnTimeLimitsMD
     'obj_mdl_kpi_limit.init
@@ -165,6 +165,7 @@ Private Sub Class_Initialize()
     Set col_areas = New Collection
     Set col_area_steps = New Collection
     Set col_places = New Collection
+    Set col_kpis = New Collection
 End Sub
 
 Public Function process_record(mdl_id As String, obj_record As Object)
@@ -178,6 +179,9 @@ Public Function process_record(mdl_id As String, obj_record As Object)
         
         Case new_const_mdl_id.STR_MDL_AREA_STEP
             col_area_steps.add obj_record, obj_record.str_id
+        
+        Case new_const_mdl_id.STR_MDL_KPI
+            col_kpis.add obj_record, obj_record.str_id
             
         Case Else:
     

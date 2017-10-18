@@ -11,10 +11,10 @@ Option Explicit
 
 Public str_module As String
 
-Public INT_ID_OFFSET As Integer
-Public INT_AREA_ID_OFFSET As Integer
-Public INT_PLACE_FROM_OFFSET As Integer
-Public INT_PLACE_TO_OFFSET As Integer
+Public INT_OFFSET_ID As Integer
+Public INT_OFFSET_AREA_ID As Integer
+Public INT_OFFSET_PLACE_FROM As Integer
+Public INT_OFFSET_PLACE_TO As Integer
 
 Public single_data_provider As FileExcelDataProvider
 
@@ -36,12 +36,12 @@ Dim obj_listener As Object
 Dim obj_area_step As AreaStep
 
 Set obj_area_step = New AreaStep
-obj_area_step.str_id = rg_record.Offset(0, INT_ID_OFFSET).Value
-obj_area_step.str_place_from = rg_record.Offset(0, INT_PLACE_FROM_OFFSET).Value
-obj_area_step.str_place_to = rg_record.Offset(0, INT_PLACE_TO_OFFSET).Value
+obj_area_step.str_id = rg_record.Offset(0, INT_OFFSET_ID).Value
+obj_area_step.str_place_from = rg_record.Offset(0, INT_OFFSET_PLACE_FROM).Value
+obj_area_step.str_place_to = rg_record.Offset(0, INT_OFFSET_PLACE_TO).Value
 
 If col_areas.Count > 0 Then
-        obj_area_step.obj_area = col_areas(rg_record.Offset(0, INT_AREA_ID_OFFSET).Value)
+        obj_area_step.obj_area = col_areas(rg_record.Offset(0, INT_OFFSET_AREA_ID).Value)
 End If
 
 For Each obj_listener In Me.col_listeners
@@ -58,9 +58,9 @@ Set col_listeners = New Collection
 
 Set single_data_provider = New FileExcelDataProvider
 
-INT_ID_OFFSET = 0
-INT_AREA_ID_OFFSET = 1
-INT_PLACE_FROM_OFFSET = 2
-INT_PLACE_TO_OFFSET = 3
+INT_OFFSET_ID = 0
+INT_OFFSET_AREA_ID = 1
+INT_OFFSET_PLACE_FROM = 2
+INT_OFFSET_PLACE_TO = 3
 
 End Sub

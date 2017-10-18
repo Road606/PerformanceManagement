@@ -11,8 +11,8 @@ Option Explicit
 
 Public str_module As String
 
-Public INT_ID_OFFSET As Integer
-Public INT_NAME_OFFSET As Integer
+Public INT_OFFSET_ID As Integer
+Public INT_OFFSET_NAME As Integer
 
 Public single_data_provider As FileExcelDataProvider
 
@@ -33,8 +33,8 @@ Dim obj_listener As Object
 Dim obj_place As Place
 Set obj_place = New Place
 
-obj_place.str_id = rg_record.Offset(0, Me.INT_ID_OFFSET).Value
-obj_place.str_name = rg_record.Offset(0, Me.INT_NAME_OFFSET).Value
+obj_place.str_id = rg_record.Offset(0, Me.INT_OFFSET_ID).Value
+obj_place.str_name = rg_record.Offset(0, Me.INT_OFFSET_NAME).Value
 
 For Each obj_listener In Me.col_listeners
     obj_listener.process_record str_module, obj_place
@@ -51,7 +51,7 @@ Set col_listeners = New Collection
 
 Set single_data_provider = New FileExcelDataProvider
 
-INT_ID_OFFSET = 0
-INT_NAME_OFFSET = 1
+INT_OFFSET_ID = 0
+INT_OFFSET_NAME = 1
 
 End Sub
