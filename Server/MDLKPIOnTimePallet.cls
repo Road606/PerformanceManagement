@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Const str_module As String = "MDLKPIOnTimeResult"
+Private Const str_module As String = "MDLKPIOnTimePallet"
 
 Public STR_DB_TYPE_FILE_EXCEL As String
 
@@ -26,6 +26,7 @@ Public INT_OFFSET_PLACE_TO As Integer
 Public INT_OFFSET_DATE_START As Integer
 Public INT_OFFSET_DATE_END As Integer
 Public INT_OFFSET_DATE_LAST_CHECKPOINT As Integer
+Public INT_OFFSET_INTERVAL_ID As Integer
 Public INT_OFFSET_INTERVAL_START As Integer
 Public INT_OFFSET_INTERVAL_END As Integer
 Public INT_OFFSET_INTERVAL_SHIFT As Integer
@@ -63,11 +64,12 @@ Private Sub Class_Initialize()
     INT_OFFSET_DATE_START = 9
     INT_OFFSET_DATE_END = 10
     INT_OFFSET_DATE_LAST_CHECKPOINT = 11
-    INT_OFFSET_INTERVAL_START = 12
-    INT_OFFSET_INTERVAL_END = 13
-    INT_OFFSET_INTERVAL_SHIFT = 14
-    INT_OFFSET_INTERVAL_SHIFT_TYPE = 15
-    INT_OFFSET_CHECKPOINT_LIMIT = 16
+    INT_OFFSET_INTERVAL_ID = 12
+    INT_OFFSET_INTERVAL_START = 13
+    INT_OFFSET_INTERVAL_END = 14
+    INT_OFFSET_INTERVAL_SHIFT = 15
+    INT_OFFSET_INTERVAL_SHIFT_TYPE = 16
+    INT_OFFSET_CHECKPOINT_LIMIT = 17
     
     ' app help sheet
 '    INT_APP_WORK_COL_DATE_OFFSET = 0
@@ -94,7 +96,7 @@ End Function
 
 Public Function load_data_for_interval(obj_kpi_on_time_interval As KPIOnTimeInterval)
     Dim obj_data_provider As FileExcelDataProvider
-    Dim obj_data_provider_util As FileExcelDataProviderUtil
+    Dim obj_data_provider_util As Object
     Dim str_provider_id As String
     
     Set obj_data_provider_util = obj_multi_data_provider.obj_data_provider_util
@@ -150,6 +152,7 @@ Public Function load_record(rg_record As Range)
     obj_interval.obj_end = rg_record.Offset(0, INT_OFFSET_INTERVAL_END).Value
     Set obj_kpi_interval = New KPIOnTimeInterval
     obj_kpi_interval.obj_interval = obj_interval
+    obj_kpi_interval.str_date_time = rg_record.Offset(0, INT_OFFSET_INTERVAL_ID).Value
         ' shift
     obj_kpi_interval.str_shift = rg_record.Offset(0, INT_OFFSET_INTERVAL_SHIFT).Value
     obj_kpi_interval.str_shift_type = rg_record.Offset(0, INT_OFFSET_INTERVAL_SHIFT_TYPE).Value
@@ -190,11 +193,11 @@ End Function
 
 Public Function save_record_dynamic(obj_kpi_on_time_pallet As KPIOnTimePallet)
     Dim obj_data_provider As FileExcelDataProvider
-    Dim obj_data_provider_util As FileExcelDataProviderUtil
+    Dim obj_data_provider_util As Object
     'Dim str_provider_id As String
 
     Set obj_data_provider_util = obj_multi_data_provider.obj_data_provider_util
-    obj_data_provider_util.str_datetime = obj_kpi_on_time_pallet.obj_kpi_interval.obj_interval.obj_start 'obj_kpi_on_time_pallet.str_date_start '& " " & obj_kpi_on_time_pallet.str_time
+    obj_data_provider_util.str_datetime = obj_kpi_on_time_pallet.obj_kpi_interval.str_date_time 'obj_interval.obj_start 'obj_kpi_on_time_pallet.str_date_start '& " " & obj_kpi_on_time_pallet.str_time
     'str_provider_id = obj_data_provider_util.str_provider_id
     On Error GoTo INFO_PROVIDER_NOT_FOUND
     Set obj_data_provider = obj_multi_data_provider.retrieve_provider(obj_data_provider_util.str_provider_id)
@@ -203,11 +206,16 @@ Public Function save_record_dynamic(obj_kpi_on_time_pallet As KPIOnTimePallet)
     save_record obj_kpi_on_time_pallet, obj_data_provider.next_data
     Exit Function
 INFO_PROVIDER_NOT_FOUND:
+    obj_data_provider_util.str_provider_status = retrieve_data_provider_completeness_status(obj_kpi_on_time_pallet.obj_kpi_interval)
+
     Set obj_data_provider = _
         obj_multi_data_provider.create_data_provider_save_mode( _
             obj_data_provider_util.str_provider_id, _
             obj_data_provider_util.retrieve_creation_file_name, _
-            obj_data_provider_util.retrieve_creation_tmpl_file_name)
+            obj_data_provider_util.retrieve_creation_tmpl_file_name, _
+            new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL, _
+            new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC)
+    'obj_data_provider.obj_info.str_completeness_status = obj_data_provider_util.str_provider_status
     ' open file to start saving data
     obj_data_provider.open_data
     Resume Next
@@ -238,6 +246,7 @@ Public Function save_record(obj_kpi_on_time_pallet As KPIOnTimePallet, rg_record
     rg_record.Offset(0, INT_OFFSET_DATE_LAST_CHECKPOINT).Value = obj_kpi_on_time_pallet.str_date_last_checkpoint
       ' interval
         ' start, end
+    rg_record.Offset(0, INT_OFFSET_INTERVAL_ID).Value = obj_kpi_on_time_pallet.obj_kpi_interval.str_id
     rg_record.Offset(0, INT_OFFSET_INTERVAL_START).Value = obj_kpi_on_time_pallet.obj_kpi_interval.obj_interval.obj_start
     rg_record.Offset(0, INT_OFFSET_INTERVAL_END).Value = obj_kpi_on_time_pallet.obj_kpi_interval.obj_interval.obj_end
         ' shift
@@ -256,4 +265,10 @@ Public Function add_listener(obj_listener As Object)
     col_listeners.add obj_listener
 End Function
 
-
+Private Function retrieve_data_provider_completeness_status(obj_kpi_interval As KPIOnTimeInterval) As String
+    If obj_kpi_interval.bool_is_finished Then
+        retrieve_data_provider_completeness_status = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_STATUS_CLOSED
+    Else
+        retrieve_data_provider_completeness_status = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_STATUS_OPENED
+    End If
+End Function

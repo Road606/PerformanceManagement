@@ -35,15 +35,15 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
 
     Set obj_current_provider_info = obj_provider_info
 
-    If obj_provider_info.str_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
+    If obj_provider_info.str_loading_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
         create_intervals obj_provider_info.obj_period.str_start, obj_provider_info.obj_period.str_end
         
         'If Not bool_db_data_process_unfinished_loaded Then
-            For Each obj_db_data_process In col_db_data_process_unfinished
-                process_db_data_process_record obj_db_data_process
-            Next
-            
-            bool_db_data_process_unfinished_loaded = True
+'            For Each obj_db_data_process In col_db_data_process_unfinished
+'                process_db_data_process_record obj_db_data_process
+'            Next
+'
+'            bool_db_data_process_unfinished_loaded = True
         'End If
     Else
         Set col_db_data_process_unfinished = New Collection
@@ -52,7 +52,7 @@ End Function
 
 ' # method is called from MDLProcessDashboardListener
 Public Function process_record(obj_db_data_process As DBDataProcess)
-    If obj_current_provider_info.str_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
+    If obj_current_provider_info.str_loading_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
         process_db_data_process_record obj_db_data_process
     Else
         process_db_data_process_unfinished obj_db_data_process
@@ -61,7 +61,7 @@ End Function
 
 ' # method is called from MDLProcessDashboardListener
 Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
-    If obj_provider_info.str_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
+    If obj_provider_info.str_loading_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
         save obj_provider_info
         
         ' clean up

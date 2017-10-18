@@ -116,13 +116,18 @@ Public Function after_run()
 End Function
 
 Function run()
-    If init Then
-        BOOL_CLOSE_APP = False
-        
-        before_run
-        'app.init
-        hndl_performance.clear
-        hndl_history.process_data
-        after_run
-    End If
+'    If init Then
+'        BOOL_CLOSE_APP = False
+'
+'        before_run
+'        app.init
+'        after_run
+'    End If
+    
+    app_process.run
+    app_dashboard.run
 End Function
+
+Public Sub background_job()
+    run
+End Sub

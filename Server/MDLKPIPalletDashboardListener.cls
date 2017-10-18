@@ -62,7 +62,7 @@ Private Function create_kpi(rg_record As Range, obj_md_dashboard As MDDashboard1
             Set create_kpi = New CtrlKPIOnTimeResult
             On Error GoTo WARN_KPI_NOT_FOUND
             Set create_kpi.obj_kpi = obj_md_dashboard.col_kpis(rg_record.Offset(0, INT_OFFSET_LINK).Value)
-            Set create_kpi.obj_mdl_kpi_on_time_result = create_mdl_kpi_on_time_result
+            create_kpi.add_mdl_kpi_on_time_result create_mdl_kpi_on_time_result
     End Select
     
     Exit Function

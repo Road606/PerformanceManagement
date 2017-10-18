@@ -170,7 +170,7 @@ End Function
 
 Private Function init_mdl_data_pallet(obj_dashboard_listener As MDLKPIPalletDashboardListener)
     Dim obj_multi_data_provider As MultiFileExcelDataProvider
-    Dim obj_data_provider_util As FileExcelDataProviderUtil
+    Dim obj_data_provider_util As FileExcelDataProviderStatusUtil
     
     Dim obj_listener As Object
 
@@ -192,7 +192,7 @@ Private Function init_mdl_data_pallet(obj_dashboard_listener As MDLKPIPalletDash
           ' add to model
     Set obj_mdl_data_kpi_pallet.obj_multi_data_provider = obj_multi_data_provider
         ' data provider util
-    Set obj_data_provider_util = New FileExcelDataProviderUtil
+    Set obj_data_provider_util = New FileExcelDataProviderStatusUtil
           ' save mode
     obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY_MINUTE
           ' file
@@ -204,6 +204,10 @@ Private Function init_mdl_data_pallet(obj_dashboard_listener As MDLKPIPalletDash
     obj_data_provider_util.str_file_prefix = "history-kpi_pallet"
     obj_data_provider_util.str_file_name_separator = "-"
     obj_data_provider_util.str_file_appendix = ".xlsx"
+          ' regex
+    obj_data_provider_util.str_regex_pattern = "history-kpi_pallet-(\d{10})-(opened|closed)"
+    obj_data_provider_util.int_regex_id = 0
+    obj_data_provider_util.int_regex_status = 1
           ' add to multi data provider
     Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
 End Function

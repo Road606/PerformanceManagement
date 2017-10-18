@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Public str_id As String
+'Public str_id As String
 
 Public str_date_time As String
 Public str_shift As String
@@ -27,13 +27,17 @@ Public obj_previous_interval As KPIOnTimeInterval
 
 Public private_obj_interval As Interval
 
+Public Property Get str_id() As String
+    str_id = str_date_time
+End Property
+
 Public Property Get obj_interval() As Interval
     Set obj_interval = private_obj_interval
 End Property
 
 Public Property Let obj_interval(obj_interval As Interval)
     Set private_obj_interval = obj_interval
-    str_id = obj_interval.obj_start
+    'str_id = obj_interval.obj_start
 End Property
 
 Public Property Get str_date() As String

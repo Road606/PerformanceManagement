@@ -110,6 +110,10 @@ End Function
 Public Function load_record(rg_record As Range)
     Dim obj_db_data_process As DBDataProcess
     Dim obj_listener As Object
+ 
+    If rg_record.Offset(0, INT_OFFSET_PALLET).Value = "357020105503029721" Then
+        DoEvents
+    End If
 
     ' fill data in a row
     Set obj_db_data_process = New DBDataProcess
@@ -142,7 +146,7 @@ Public Function load_record(rg_record As Range)
     obj_db_data_process.byte_process_status = rg_record.Offset(0, INT_OFFSET_PROCESS_STATUS).Value
     
     For Each obj_listener In col_listeners
-        On Error GoTo WARN_PROCESS_RECORD_FAILED
+        'On Error GoTo WARN_PROCESS_RECORD_FAILED
         obj_listener.process_record obj_db_data_process
         On Error GoTo 0
     Next
@@ -265,75 +269,3 @@ End Function
 Public Function add_listener(obj_listener As Object)
     col_listeners.add obj_listener
 End Function
-
-'Public Function add_provider_info_listener(obj_listener As Object)
-'    col_provider_info_listeners.add obj_listener
-'End Function
-
-'Public Function retrieve_provider_id(obj_data_process_record As DBDataProcess) As String
-'    Dim str_date_identifier As String
-'
-'    Select Case STR_SAVE_MODE
-'        Case STR_SAVE_MODE_HOURLY
-'            retrieve_provider_id = Format(obj_data_process_record.str_date_start, "YYMMDDHH")
-'        Case STR_SAVE_MODE_DAILY
-'            retrieve_provider_id = Format(obj_data_process_record.str_date_start, "YYMMDD")
-'    End Select
-'End Function
-'
-'Public Function retrieve_creation_tmpl_file_name()
-'    retrieve_creation_tmpl_file_name = _
-'        STR_CREATION_TMPL_PATH & _
-'        STR_CREATION_FILE_PREFIX & _
-'        STR_CREATION_FILE_NAME_SEPARATOR & _
-'        STR_CREATION_TMPL_FILE_APPENDIX & _
-'        STR_CREATION_FILE_APPENDIX
-'End Function
-'
-'Public Function retrieve_creation_file_name(str_date_identifier As String)
-'    retrieve_creation_file_name = _
-'        STR_CREATION_FILE_PREFIX & _
-'        STR_CREATION_FILE_NAME_SEPARATOR & _
-'        str_date_identifier & _
-'        STR_CREATION_FILE_APPENDIX
-'End Function
-
-'Public Function retrieve_creation_file_name(str_date_identifier As String)
-'    retrieve_creation_file_name = _
-'        STR_CREATION_PATH & _
-'        STR_CREATION_FILE_PREFIX & _
-'        STR_CREATION_FILE_NAME_SEPARATOR & _
-'        str_date_identifier & _
-'        STR_CREATION_FILE_APPENDIX
-'End Function
-'Public Function retrieve_dates() As Collection
-'    Dim rg_app_work As Range
-'    Dim rg_transaction_date As Range
-'
-'    app_work.clear
-'
-'    Set rg_transaction_date = _
-'        ThisWorkbook.Worksheets(hndl_performance.str_ws_name). _
-'        Range(hndl_performance.STR_DATA_FIRST_CELL). _
-'        Offset(0, db_performance.INT_OFFSET_TRANSACTION_DATE)
-'
-'    Set rg_app_work = _
-'            ThisWorkbook.Worksheets(app_work.str_ws_name). _
-'            Range(app_work.STR_DATA_START_RG)
-'
-'    If rg_transaction_date.Value <> "" Then
-'        Set rg_transaction_date = Range(rg_transaction_date, rg_transaction_date.End(xlDown))
-'        rg_transaction_date.Copy
-'
-'        rg_app_work.PasteSpecial xlPasteValues
-'        rg_app_work.RemoveDuplicates Columns:=Array(INT_APP_WORK_COL_DATE_OFFSET + 1)
-'    End If
-'
-'    Set retrieve_dates = New Collection
-'
-'    Do While rg_app_work.Value <> ""
-'        retrieve_dates.add rg_app_work.Value
-'        Set rg_app_work = rg_app_work.Offset(1)
-'    Loop
-'End Function
-

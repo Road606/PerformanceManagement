@@ -11,5 +11,9 @@ Option Explicit
 
 Public str_provider_id As String
 Public str_type As String
+Public str_loading_type As String
 
 Public obj_period As Period
+
+Public str_completeness_status As String ' contains constant from const_excel_data_provider
+'Public bool_record_as_processed_on As Boolean
