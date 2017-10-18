@@ -46,7 +46,7 @@ Public STR_PROCESSED_FILE_NAME As String
 Public obj_current_data_provider_info As FileExcelDataProviderInfo
 
 Public obj_mdl_processed_file As MDLProcessedFile
-Public obj_data_provider_util As FileExcelDataProviderUtil
+Public obj_data_provider_util As Object ' FileExcelDataProviderUtil
 
 Private Sub Class_Initialize()
     ' providers management
@@ -93,14 +93,14 @@ Public Function load_data()
     obj_mdl_processed_file.open_data
     On Error GoTo 0
     
-    On Error GoTo ERR_CREATE_PROVIDERS
+    'On Error GoTo ERR_CREATE_PROVIDERS
     If BOOL_IS_DYNAMIC_LOADING_PROVIDERS_FROM_FILES_ON Then
         create_data_providers_read_mode
     End If
     On Error GoTo 0
     
     For Each obj_data_provider In col_providers
-        On Error GoTo ERR_PROCESS_FILE
+        'On Error GoTo ERR_PROCESS_FILE
         before_load_data obj_data_provider
         obj_data_provider.load_data 'obj_current_data_provider_info
         after_load_data
@@ -113,10 +113,10 @@ Public Function load_data()
             
     Exit Function
 ERR_PROCESSED_FILE_NOT_FOUND:
-    hndl_log.log db_log.TYPE_WARN, str_module, "process", Err.Number & "->" & Err.description
+    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.description
     Exit Function
 ERR_CREATE_PROVIDERS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "process", Err.Number & "->" & Err.description
+    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.description
     Exit Function
 ERR_PROCESS_FILE:
     hndl_log.log db_log.TYPE_WARN, str_module, "process", _
@@ -128,17 +128,21 @@ Public Function before_load_data(obj_provider As FileExcelDataProvider)
     Dim obj_listener As Object
 
     ' register processed file
-      ' # implement - processed_file will be registered as usual listener
-    Set obj_mdl_processed_file.obj_file_record = New DBProcessedFileRecord
-    obj_mdl_processed_file.obj_file_record.str_name = obj_provider.str_file_name
-    obj_mdl_processed_file.obj_file_record.str_date_started = Now
+      ' # implement - processed_file will be registered as usual listener  - obj_provider_info must implement property bool_record_as_processed
+    'If obj_provider.obj_info.str_completeness_status = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_STATUS_CLOSED Then
+        Set obj_mdl_processed_file.obj_file_record = New DBProcessedFileRecord
+        obj_mdl_processed_file.obj_file_record.str_name = obj_provider.str_file_name
+        obj_mdl_processed_file.obj_file_record.str_date_started = Now
+    'End If
     ' send basic data about current processed provider
-    Set obj_current_data_provider_info = New FileExcelDataProviderInfo
-        obj_current_data_provider_info.str_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC
-        obj_current_data_provider_info.str_provider_id = obj_provider.str_id
-        Set obj_current_data_provider_info.obj_period = _
-            obj_data_provider_util.retrieve_period( _
-                obj_data_provider_util.retrieve_provider_id_reverse(obj_provider.str_file_name))
+'    Set obj_current_data_provider_info = New FileExcelDataProviderInfo
+'        obj_current_data_provider_info.str_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC
+'        obj_current_data_provider_info.str_provider_id = obj_provider.str_id
+'        Set obj_current_data_provider_info.obj_period = _
+'            obj_data_provider_util.retrieve_period( _
+'                obj_data_provider_util.retrieve_provider_id_reverse(obj_provider.str_file_name))
+'        obj_current_data_provider_info.str_completeness_status = obj_provider.str_completeness_status
+    Set obj_current_data_provider_info = obj_provider.obj_info
                 
     For Each obj_listener In col_listeners
         obj_listener.loading_data_is_about_to_start obj_current_data_provider_info
@@ -148,11 +152,13 @@ End Function
 
 Public Function after_load_data()
     Dim obj_listener As Object
-    Dim obj_provider_info As FileExcelDataProviderInfo
+    'Dim obj_provider_info As FileExcelDataProviderInfo
 
-    ' # implement - processed_file will be registered as usual listener
-    obj_mdl_processed_file.obj_file_record.str_date_finished = Now
-    obj_mdl_processed_file.save_record
+    ' # implement - processed_file will be registered as usual listener - obj_provider_info must implement property bool_record_as_processed
+    'If obj_current_data_provider_info.str_completeness_status = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_STATUS_CLOSED Then
+        obj_mdl_processed_file.obj_file_record.str_date_finished = Now
+        obj_mdl_processed_file.save_record
+    'End If
     
     For Each obj_listener In col_listeners
         obj_listener.loading_data_has_finished obj_current_data_provider_info
@@ -196,7 +202,7 @@ Public Function create_data_providers_read_mode()
     For Each var_file In obj_list_files
         On Error GoTo ERR_PROCESS_FILE
         Set obj_data_provider = create_data_provider_read_mode( _
-            obj_data_provider_util.retrieve_provider_id_reverse(CStr(var_file)), CStr(var_file), str_source_type)
+            obj_data_provider_util.retrieve_provider_id_reverse(CStr(var_file)), CStr(var_file), str_source_type, new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC)
         On Error GoTo 0
     Next
     Exit Function
@@ -226,7 +232,7 @@ INFO_NOT_PROCESSED_FILE:
     Resume Next
 End Function
 
-Public Function create_data_provider_save_mode(str_id As String, Optional str_file_name As String, Optional str_tmpl_file_path_unique As String, Optional str_source_type_unique As String = "") As FileExcelDataProvider
+Public Function create_data_provider_save_mode(str_id As String, Optional str_file_name As String, Optional str_tmpl_file_path_unique As String, Optional str_source_type_unique As String = "", Optional str_info_type As String = "") As FileExcelDataProvider
     Dim str_tmpl_file_path_final As String
     
     If str_tmpl_file_path_unique <> "" Then
@@ -235,19 +241,20 @@ Public Function create_data_provider_save_mode(str_id As String, Optional str_fi
         str_tmpl_file_path_final = str_tmpl_file_path
     End If
     
-    Set create_data_provider_save_mode = create_data_provider(str_id, str_file_name, str_source_type_unique)
+    Set create_data_provider_save_mode = create_data_provider(str_id, str_file_name, str_source_type_unique, str_info_type)
     create_data_provider_save_mode.str_tmpl_file_path = str_tmpl_file_path_final
     create_data_provider_save_mode.bool_save_mode_on = True
 End Function
 
-Public Function create_data_provider_read_mode(str_id As String, Optional str_file_name As String, Optional str_source_type_unique As String = "") As FileExcelDataProvider
-    Set create_data_provider_read_mode = create_data_provider(str_id, str_file_name, str_source_type_unique)
+Public Function create_data_provider_read_mode(str_id As String, Optional str_file_name As String, Optional str_source_type_unique As String = "", Optional str_info_type As String = "") As FileExcelDataProvider
+    Set create_data_provider_read_mode = create_data_provider(str_id, str_file_name, str_source_type_unique, str_info_type)
     create_data_provider_read_mode.bool_save_mode_on = False
 End Function
 
-Private Function create_data_provider(str_id As String, Optional str_file_name As String, Optional str_source_type_unique As String = "") As FileExcelDataProvider
+Private Function create_data_provider(str_id As String, Optional str_file_name As String, Optional str_source_type_unique As String = "", Optional str_info_type As String = "") As FileExcelDataProvider ' str_source_type_unique - if file name is handed over, it says what to do
     Dim obj_listener As Object
-    Dim str_source_type_final
+    Dim str_source_type_final As String
+    Dim obj_info As FileExcelDataProviderInfo
     
     Set create_data_provider = New FileExcelDataProvider
     create_data_provider.str_id = str_id
@@ -266,6 +273,9 @@ Private Function create_data_provider(str_id As String, Optional str_file_name A
         create_data_provider.str_path = str_path
         create_data_provider.str_file_name = str_file_name
         create_data_provider.bool_visibility_mode = bool_visibility_mode
+        ' info
+        Set create_data_provider.obj_info = obj_data_provider_util.create_provider_info(str_file_name, str_source_type_final, str_info_type)
+        'create_data_provider.str_id = create_data_provider.obj_info.str_provider_id
     End If
     
     ' sheet

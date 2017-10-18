@@ -5,6 +5,8 @@ Option Explicit
 'Public obj_mdl_process_version As MDLProcessVersionMaster
 
 Public Function setup()
+    Dim obj_mdl_bin_prod_line As MDLBINProdLine
+
     bin.init
     Set obj_mdl_bin_prod_line = New MDLBINProdLine
     Set obj_mdl_bin_prod_line.obj_data_provider = New FileExcelDataProvider
@@ -41,12 +43,12 @@ Public Function test_run()
     dbl_start = Now
     Set obj_dashboard = New CtrlDashboard1
     ' run setting
-    obj_dashboard.bool_run_process = new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_YES
-    obj_dashboard.bool_run_process_load_unfinished = new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_LOAD_UNFINISHED_YES
-    obj_dashboard.bool_run_kpi_pallet = new_const_ctrl_dashboard1.BOOL_RUN_KPI_PALLET_NO
+    obj_dashboard.bool_run_process = new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_YES 'new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_YES
+    'obj_dashboard.bool_run_process_load_unfinished = new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_LOAD_UNFINISHED_NO
+    obj_dashboard.bool_run_kpi_pallet = new_const_ctrl_dashboard1.BOOL_RUN_KPI_PALLET_YES
     
     obj_dashboard.before_run
-    obj_dashboard.run 'True, False 'False, True 'True, False
+    obj_dashboard.run
     dbl_end = Now
     
     tear_down
