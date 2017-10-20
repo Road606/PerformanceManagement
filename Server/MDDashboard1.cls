@@ -1,4 +1,3 @@
-
 VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
@@ -28,6 +27,7 @@ Public STR_WS_NAME_CONDITION_PROCESS_MATERIAL As String
 
 Public col_processes As Collection
 Public col_process_versions As Collection
+Public col_process_intervals As Collection
 Public col_areas As Collection
 Public col_area_steps As Collection
 Public col_places As Collection
@@ -48,35 +48,29 @@ Private Function load_process()
     Dim obj_mdl_process As MDLProcessMaster
     Dim obj_mdl_process_version As MDLProcessVersionMaster
     Dim obj_mdl_process_interval As MDLProcessIntervalMD
-    Dim obj_data_provider As FileExcelDataProvider
 
     Set obj_mdl_process = New MDLProcessMaster
-    obj_mdl_process.init
-    obj_mdl_process.STR_WS_NAME = STR_WS_NAME_MASTER_PROCESS
+    
+    obj_mdl_process.single_data_provider.STR_WS_NAME = STR_WS_NAME_MASTER_PROCESS
+    obj_mdl_process.add_listener Me
+    obj_mdl_process.load_data
     
     Set obj_mdl_process_version = New MDLProcessVersionMaster
-    'obj_mdl_process_version.init
-    obj_mdl_process_version.STR_WS_NAME = STR_WS_NAME_MASTER_PROCESS_VERSION
+    
+    obj_mdl_process_version.single_data_provider.STR_WS_NAME = STR_WS_NAME_MASTER_PROCESS_VERSION
+    obj_mdl_process_version.add_listener Me
+    obj_mdl_process_version.load_data
     
     Set obj_mdl_process_interval = New MDLProcessIntervalMD
-    Set obj_data_provider = New FileExcelDataProvider
-    obj_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_INTERNAL
-    obj_data_provider.STR_WS_NAME = STR_WS_NAME_MASTER_PROCESS_INTERVAL
-    obj_data_provider.add_listener obj_mdl_process_interval
-    Set obj_mdl_process_interval.obj_data_provider = obj_data_provider
     
-    obj_mdl_process.load_data
-    obj_mdl_process_version.load_data obj_mdl_process.col_process_masters
-    Set obj_mdl_process_interval.col_processes = obj_mdl_process.col_process_masters
-    obj_mdl_process_interval.load
     
-    Set col_processes = obj_mdl_process.col_process_masters
-    Set col_process_versions = obj_mdl_process_version.col_versions
+    obj_mdl_process_interval.add_listener Me
+    obj_mdl_process_interval.single_data_provider.STR_WS_NAME = STR_WS_NAME_MASTER_PROCESS_INTERVAL
+    obj_mdl_process_interval.load_data
     
     Set obj_mdl_process = Nothing
     Set obj_mdl_process_version = Nothing
     Set obj_mdl_process_interval = Nothing
-    Set obj_data_provider = Nothing
 End Function
 
 Private Function load_area_steps()
@@ -92,7 +86,7 @@ Private Function load_area_steps()
     obj_mdl_area_step.single_data_provider.STR_WS_NAME = STR_WS_NAME_AREA_STEP_MD '"db.md.area.step"
     
     obj_mdl_area.load_data
-    obj_mdl_area_step.load_data Me.col_areas
+    obj_mdl_area_step.load_data
     
     
     Set obj_mdl_area = Nothing
@@ -118,32 +112,34 @@ Public Function load_kpis()
     Set obj_mdl_kpi = New MDLKPIMD
     obj_mdl_kpi.add_listener Me
     obj_mdl_kpi.single_data_provider.STR_WS_NAME = STR_WS_NAME_KPI
-    obj_mdl_kpi.load_data col_kpis, col_processes
+    obj_mdl_kpi.load_data
     
     Set obj_mdl_kpi_limit = New MDLKPIOnTimeLimitsMD
     'obj_mdl_kpi_limit.init
-    obj_mdl_kpi_limit.STR_WS_NAME = STR_WS_NAME_KPI_ON_TIME_LIMITS
-    obj_mdl_kpi_limit.load_data obj_mdl_kpi.col_kpis
+    obj_mdl_kpi_limit.add_listener Me
+    obj_mdl_kpi_limit.single_data_provider.STR_WS_NAME = STR_WS_NAME_KPI_ON_TIME_LIMITS
+    obj_mdl_kpi_limit.load_data
     
-    Set col_kpis = obj_mdl_kpi.col_kpis
+    'Set col_kpis = obj_mdl_kpi.col_kpis
 End Function
 
 Public Function load_material_group_wh_resolvers()
     Dim obj_mdl_material_group_wh_resolver As MDLMaterialGroupWHResolver
     
     Set obj_mdl_material_group_wh_resolver = New MDLMaterialGroupWHResolver
-    obj_mdl_material_group_wh_resolver.STR_WS_NAME = STR_WS_NAME_MATERIAL_GROUP_WH_RESOLVER
+    obj_mdl_material_group_wh_resolver.add_listener Me
+    obj_mdl_material_group_wh_resolver.single_data_provider.STR_WS_NAME = STR_WS_NAME_MATERIAL_GROUP_WH_RESOLVER
     obj_mdl_material_group_wh_resolver.load_data
-    Set col_material_group_wh_resolvers = obj_mdl_material_group_wh_resolver.col_vendors
 End Function
 
 Public Function load_conditions_process_material()
     Dim obj_mdl_condition_process_material As MDLConditionProcessMaterial
     
     Set obj_mdl_condition_process_material = New MDLConditionProcessMaterial
-    obj_mdl_condition_process_material.STR_WS_NAME = STR_WS_NAME_CONDITION_PROCESS_MATERIAL
+    obj_mdl_condition_process_material.single_data_provider.STR_WS_NAME = STR_WS_NAME_CONDITION_PROCESS_MATERIAL
+    obj_mdl_condition_process_material.add_listener Me
     obj_mdl_condition_process_material.load_data
-    Set col_conditions_process_material = obj_mdl_condition_process_material.col_vendors
+    'Set col_conditions_process_material = obj_mdl_condition_process_material.col_vendors
 End Function
 
 Private Sub Class_Initialize()
@@ -167,25 +163,42 @@ Private Sub Class_Initialize()
     Set col_area_steps = New Collection
     Set col_places = New Collection
     Set col_kpis = New Collection
+    Set col_material_group_wh_resolvers = New Collection
+    Set col_conditions_process_material = New Collection
+    Set col_processes = New Collection
+    Set col_process_versions = New Collection
+    Set col_process_intervals = New Collection
 End Sub
 
-Public Function process_record(mdl_id As String, obj_record As Object)
-       
+Public Function get_collection(mdl_id As String) As Collection
     Select Case mdl_id
         Case new_const_mdl_id.STR_MDL_AREA:
-            col_areas.add obj_record, obj_record.str_id
-            
+            Set get_collection = col_areas
+        
         Case new_const_mdl_id.STR_MDL_PLACE:
-            col_places.add obj_record
-        
-        Case new_const_mdl_id.STR_MDL_AREA_STEP
-            col_area_steps.add obj_record, obj_record.str_id
-        
-        Case new_const_mdl_id.STR_MDL_KPI
-            col_kpis.add obj_record, obj_record.str_id
+            Set get_collection = col_places
             
-        Case Else:
-    
+        Case new_const_mdl_id.STR_MDL_AREA_STEP:
+            Set get_collection = col_area_steps
+        
+        Case new_const_mdl_id.STR_MDL_KPI, new_const_mdl_id.STR_MDL_KPI_ONTIME_LIMITS:
+            Set get_collection = col_kpis
+        
+        Case new_const_mdl_id.STR_MDL_PROCESS_MASTER:
+            Set get_collection = col_processes
+        
+        Case new_const_mdl_id.STR_MDL_MATERIAL_GROUP_WH_RESOLVER:
+            Set get_collection = col_material_group_wh_resolvers
+            
+        Case new_const_mdl_id.STR_MDL_CONDITION_PROCESS_MATERIAL:
+            Set get_collection = col_conditions_process_material
+        
+        Case new_const_mdl_id.STR_MDL_PROCESS_INTERVAL:
+            Set get_collection = col_process_intervals
+        
+        Case new_const_mdl_id.STR_MDL_PROCESS_VERSION_MASTER:
+            Set get_collection = col_process_versions
+        
     End Select
-    
+            
 End Function

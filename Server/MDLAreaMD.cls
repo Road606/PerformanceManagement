@@ -1,4 +1,3 @@
-
 VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
@@ -38,7 +37,7 @@ obj_area.str_name = rg_record.Offset(0, Me.INT_OFFSET_NAME).Value
 
 
 For Each obj_listener In Me.col_listeners
-    obj_listener.process_record str_module, obj_area
+    obj_listener.get_collection(str_module).add obj_area, obj_area.str_id
 Next obj_listener
 
 End Function
