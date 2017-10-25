@@ -9,7 +9,8 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Const str_module As String = "MDLProcessIntervalMD"
+Public str_module As String
+Public str_process_collection As String
 
 Public INT_OFFSET_ID As Integer
 Public INT_OFFSET_PROCESS_ID As Integer
@@ -19,48 +20,55 @@ Public INT_OFFSET_MINUTE As Integer
 Public INT_OFFSET_HOUR_OFFSET As Integer
 Public INT_OFFSET_IS_COMPLETE_OFFSET As Integer
 
-Public obj_data_provider As FileExcelDataProvider
-Public col_process_intervals As Collection
-Public col_processes As Collection
+Public single_data_provider As FileExcelDataProvider
 
-Public Function load()
-    'Set obj_data_provider = New FileExcelDataProvider
-    'obj_data_provider.str_ws_name = str_ws_name
-    'obj_data_provider.add_listener Me
-    obj_data_provider.load_data
+Public col_listeners As Collection
+
+
+Public Function add_listener(obj_listener As Object)
+    col_listeners.add obj_listener
 End Function
 
-' # interface method for listening FileExcelDataProvider
+Public Function load_data()
+    single_data_provider.add_listener Me
+    single_data_provider.load_data
+End Function
+
 Public Function load_record(rg_record As Range)
-    Dim obj_interval As Object
+    Dim obj_listener As Object
+    Dim obj_interval As ProcessInterval
     
-    Set obj_interval = create(rg_record, col_processes)
-    col_process_intervals.add obj_interval, obj_interval.str_id
-End Function
-
-Public Function create(rg_record As Range, col_processes As Collection) As ProcessInterval
-    Set create = New ProcessInterval
-    create.str_id = rg_record.Offset(0, INT_OFFSET_ID).Value
-    create.int_lower_limit = rg_record.Offset(0, INT_OFFSET_LOWER_LIMIT).Value
-    create.int_upper_limit = rg_record.Offset(0, INT_OFFSET_UPPER_LIMIT).Value
-    create.int_minute = rg_record.Offset(0, INT_OFFSET_MINUTE).Value
-    create.int_hour_offset = rg_record.Offset(0, INT_OFFSET_HOUR_OFFSET).Value
-    create.int_is_complete = rg_record.Offset(0, INT_OFFSET_IS_COMPLETE_OFFSET).Value
+    For Each obj_listener In col_listeners
+        Set obj_interval = New ProcessInterval
+        obj_interval.str_id = rg_record.Offset(0, INT_OFFSET_ID).Value
+        obj_interval.int_lower_limit = rg_record.Offset(0, INT_OFFSET_LOWER_LIMIT).Value
+        obj_interval.int_upper_limit = rg_record.Offset(0, INT_OFFSET_UPPER_LIMIT).Value
+        obj_interval.int_minute = rg_record.Offset(0, INT_OFFSET_MINUTE).Value
+        obj_interval.int_hour_offset = rg_record.Offset(0, INT_OFFSET_HOUR_OFFSET).Value
+        obj_interval.int_is_complete = rg_record.Offset(0, INT_OFFSET_IS_COMPLETE_OFFSET).Value
     
-    If Not col_processes Is Nothing Then
-        create.obj_process = col_processes(rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value)
-    End If
+        If obj_listener.get_collection(str_process_collection).Count > 0 Then
+            obj_interval.obj_process = obj_listener.get_collection(str_process_collection)(rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value)
+        End If
+        obj_listener.get_collection(str_module).add obj_interval, obj_interval.str_id
+    Next obj_listener
 End Function
 
 Private Sub Class_Initialize()
-    Set col_process_intervals = New Collection
-    
-    INT_OFFSET_ID = 0
-    INT_OFFSET_PROCESS_ID = 1
-    INT_OFFSET_LOWER_LIMIT = 2
-    INT_OFFSET_UPPER_LIMIT = 3
-    INT_OFFSET_MINUTE = 4
-    INT_OFFSET_HOUR_OFFSET = 5
-    INT_OFFSET_IS_COMPLETE_OFFSET = 6
-End Sub
 
+str_module = new_const_mdl_id.STR_MDL_PROCESS_INTERVAL
+str_process_collection = new_const_mdl_id.STR_MDL_PROCESS_MASTER
+
+INT_OFFSET_ID = 0
+INT_OFFSET_PROCESS_ID = 1
+INT_OFFSET_LOWER_LIMIT = 2
+INT_OFFSET_UPPER_LIMIT = 3
+INT_OFFSET_MINUTE = 4
+INT_OFFSET_HOUR_OFFSET = 5
+INT_OFFSET_IS_COMPLETE_OFFSET = 6
+
+Set col_listeners = New Collection
+
+Set single_data_provider = New FileExcelDataProvider
+
+End Sub
