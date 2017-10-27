@@ -3,20 +3,22 @@ Option Explicit
 
 Public Function test()
 
-Dim obj_logger As LoggerDebug
-Dim message As msg
+Dim obj_logger As LoggerMail
+Dim message As MSG
 
 
-Set obj_logger = New LoggerDebug
+Set obj_logger = New LoggerMail
 
-obj_logger.init "test", log4VBA.DBG, "test"
+obj_logger.init "test", log4VBA.ERRO, "test_destination"
+obj_logger.mailAddress = "rostislav.jirasek@lego.com"
 
 log4VBA.init
 log4VBA.add_logger obj_logger
 
 
-Set message = New msg
-log4VBA.debg "test", message.source("testing_module").text("test")
+
+Set message = New MSG
+log4VBA.error "test_destination", message.source("testing_module").text("Toto je testovací zpráva, která nemá žádný význam.")
 Set message = Nothing
 
 
@@ -29,7 +31,7 @@ Public Function test_mail()
     Set oApp = CreateObject("Outlook.Application")
     Set oMail = oApp.CreateItem(0)
     With oMail
-        .to = "rostislav.jirasek@lego.com"
+        .To = "rostislav.jirasek@lego.com"
         .Subject = "testicek"
         .Body = "test"
         .Send

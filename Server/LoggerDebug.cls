@@ -9,25 +9,25 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Public name As String
+Public Name As String
 Public destination As String
-Public level As Integer
+Public Level As Integer
 Public category As Variant
 
-Public Function log(lvl As Integer, dest As String, message As msg)
-    If Not lvl < Me.level Then
+Public Function log(lvl As Integer, dest As String, message As MSG)
+    If Not lvl < Me.Level Then
         If dest = Me.destination Then
             save message
         End If
     End If
 End Function
 
-Public Function save(message As msg)
+Public Function save(message As MSG)
     Debug.Print Now & " " & message.source_ & " " & message.text_
 End Function
 
 Public Function init(str_name As String, lvl As Integer, str_dest As String)
-    name = str_name
-    level = lvl
+    Name = str_name
+    Level = lvl
     destination = str_dest
 End Function

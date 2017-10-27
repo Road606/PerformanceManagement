@@ -14,17 +14,18 @@ Public text_ As String
 Public params As Variant
 
 
-Public Function source(str_source As String) As msg
+Public Function source(str_source As String) As MSG
     Me.source_ = str_source
     Set source = Me
 End Function
 
-Public Function text(str_text As String) As msg
+Public Function text(str_text As String) As MSG
     Me.text_ = str_text
     Set text = Me
 End Function
 
-Public Function addParams(var_params As Variant) As msg
+
+Public Function addParams(var_params As Variant) As MSG
     Me.params = var_params
     Set addParams = Me
 End Function
