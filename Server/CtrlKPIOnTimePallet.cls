@@ -391,6 +391,8 @@ Public Function retrieve_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet) A
     Dim obj_kpi_limit_mat_grp_wh As KPIOnTimeLimitMatGrpWH
     Dim obj_kpi_limit_source As KPIOnTimeLimitSource
     
+    Dim errorMsg As MSG
+    
     'Dim obj_mdl_process_version_master As New MDLProcessVersionMaster
     'Dim obj_mdl_material_group_wh As New MDLMaterialGroupWH
     
@@ -422,16 +424,25 @@ Public Function retrieve_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet) A
     
     Exit Function
 WARN_NOT_FOUND_MATERIAL_GROUP_WH_RESOLVER:
-    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "retrieve_checkpoint", _
-        "Material group wh resolver for BIN storage group:" & obj_kpi_on_time_pallet.str_material_bin_storage_group & _
+    Set errorMsg = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errorMsg.source(STR_CLASS_NAME, "retrieve_chackpoint").text("Material group wh resolver for BIN storage group:" & obj_kpi_on_time_pallet.str_material_bin_storage_group & _
         " and Vendor:" & obj_kpi_on_time_pallet.str_material_vendor & _
-        " doesn't exist. Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id
+        " doesn't exist. Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id)
+   ' hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "retrieve_checkpoint", _
+   '     "Material group wh resolver for BIN storage group:" & obj_kpi_on_time_pallet.str_material_bin_storage_group & _
+   '     " and Vendor:" & obj_kpi_on_time_pallet.str_material_vendor & _
+   '     " doesn't exist. Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id
     Set obj_kpi_limit_mat_grp_wh = obj_kpi_limit_process_version.col_limits_mat_grp_wh("default") ' # implement - change default string to constant
     bool_only_default = True
     Resume Next
     Exit Function
 WARN_NOT_FOUND_CONDITION_PROCESS_MATERIAL:
-    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "retrieve_checkpoint", _
+    Set errorMsg = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errorMsg.source(STR_CLASS_NAME, "retrieve_checkpoint").text("Condition for Process:" & obj_kpi_on_time_pallet.str_process_id & _
+        ", Process version:" & obj_kpi_on_time_pallet.str_process_version_id & _
+        " and Vendor:" & obj_kpi_on_time_pallet.str_material_vendor & _
+        " doesn't exist. Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id)
+   ' hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "retrieve_checkpoint", _
         "Condition for Process:" & obj_kpi_on_time_pallet.str_process_id & _
         ", Process version:" & obj_kpi_on_time_pallet.str_process_version_id & _
         " and Vendor:" & obj_kpi_on_time_pallet.str_material_vendor & _
@@ -441,7 +452,10 @@ WARN_NOT_FOUND_CONDITION_PROCESS_MATERIAL:
     Resume Next
     Exit Function
 INFO_NOT_REGISTERED_CHECKPOINT:
-    hndl_log.log db_log.TYPE_INFO, STR_CLASS_NAME, "retrieve_checkpoint", "Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id & ", for pallet: " & obj_kpi_on_time_pallet.str_id
+    Set errorMsg = New MSG
+    log4VBA.info log4VBA.DEFAULT_DESTINATION, errorMsg.source(STR_CLASS_NAME, "retrieve_checkpoint").text( _
+    "Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id & ", for pallet: " & obj_kpi_on_time_pallet.str_id)
+    'hndl_log.log db_log.TYPE_INFO, STR_CLASS_NAME, "retrieve_checkpoint", "Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id & ", for pallet: " & obj_kpi_on_time_pallet.str_id
 End Function
 
 Public Function retrieve_pallet_id_interval(obj_kpi_on_time_pallet As KPIOnTimePallet)

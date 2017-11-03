@@ -42,40 +42,44 @@ ERR_MISSING_WS:
 End Function
 
 Public Function close_data()
+    Dim errMessage As MSG
+    
     On Error GoTo ERR_CLOSE_FILE
-    wb.Close SaveChanges:=False
+    wb.Close saveChanges:=False
     On Error GoTo 0
     Exit Function
 ERR_CLOSE_FILE:
-    Set hndl_log.obj_log_record = New DBLogRecord
-    hndl_log.obj_log_record.str_datetime = Now
-    hndl_log.obj_log_record.str_type = db_log.TYPE_ERR
-    hndl_log.obj_log_record.str_module = str_module
-    hndl_log.obj_log_record.str_function = "close_data"
-    hndl_log.obj_log_record.str_message = "An error occured during closing file " & str_path & ". Original error message>" & Err.description
-    hndl_log.save_record
+    Set errMessage = New MSG
+    log4VBA.error log4VBA.DEFAULT_DESTINATION, errMessage.source(str_module, "close_data").text("An error occured during closing file " & str_path & ". Original error message>" & Err.description)
+    'Set hndl_log.obj_log_record = New DBLogRecord
+    'hndl_log.obj_log_record.str_datetime = Now
+    'hndl_log.obj_log_record.str_type = db_log.TYPE_ERR
+    'hndl_log.obj_log_record.str_module = str_module
+    'hndl_log.obj_log_record.str_function = "close_data"
+    'hndl_log.obj_log_record.str_message = "An error occured during closing file " & str_path & ". Original error message>" & Err.description
+    'hndl_log.save_record
 End Function
 
 ' adds a new setting. returns setting object
 ' associated with the new setting.
-Public Function add(Name As String) As Setting
+Public Function add(name As String) As Setting
     Dim lRow As Long
     Dim oSetting As Setting
     ' make sure a setting with this name
     ' doesn't already exist
     'Set oSetting = Me.Item(Name)
     
-    If Not SettingExists(Name) Then
+    If Not SettingExists(name) Then
         ' find the last used row and move down one row
         lRow = mwsSettings.Cells(65536, 1).End(xlUp).Row + 1
         ' add the name of the new setting
-        mwsSettings.Cells(lRow, 1) = Name
+        mwsSettings.Cells(lRow, 1) = name
         ' set a reference to it
-        Set oSetting = Me.Item(Name)
+        Set oSetting = Me.Item(name)
     Else
         ' the item already exists
         Err.raise vbObjectError + 201, "Settings Class", _
-        "A setting named " & Name & " already exists."
+        "A setting named " & name & " already exists."
         Set oSetting = Nothing
     End If
     Set add = oSetting
@@ -182,7 +186,7 @@ Private Function WorksheetExists(wb As Workbook, _
     
     On Error GoTo bWorksheetExistsErr
     
-    s = wb.Worksheets(sName).Name
+    s = wb.Worksheets(sName).name
     WorksheetExists = True
     Exit Function
     

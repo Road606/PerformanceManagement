@@ -33,7 +33,7 @@ Public Function open_data()
 End Function
 
 Public Function close_data()
-    wb.Close SaveChanges:=True
+    wb.Close saveChanges:=True
 End Function
 
 Public Function get_data() As Range

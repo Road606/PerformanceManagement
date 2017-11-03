@@ -33,7 +33,8 @@ End Function
 'End Function
 
 Private Function create_pallet(obj_record As DBDataProcess) As Pallet
-    Dim obj_process As process
+    Dim obj_process As Process
+    Dim errorMsg As MSG
     
     Set create_pallet = New Pallet
     
@@ -47,7 +48,7 @@ Private Function create_pallet(obj_record As DBDataProcess) As Pallet
     create_pallet.lng_stock_unit = obj_record.lng_stock_unit
     On Error GoTo 0
     ' process information
-    Set obj_process = New process
+    Set obj_process = New Process
     obj_process.byte_status = new_ctrl_process.BYTE_STATUS_OPEN
     Set obj_process.obj_master_version = _
         new_ctrl_process_master_version.retrieve(obj_record.str_creation_id, obj_record.str_version)
@@ -60,11 +61,13 @@ Private Function create_pallet(obj_record As DBDataProcess) As Pallet
     new_ctrl_pallet.add_pallet create_pallet
     Exit Function
 WARN_INVALID_VALUE_STOCK_UNIT:
-    hndl_log.log db_log.TYPE_WARN, STR_MODULE_NAME, "create_pallet", "Invalid value for Stock unit on pallet: " & obj_record.str_pallet
+    Set errorMsg = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errorMsg.source(STR_CLASS_NAME, "create_pallet").text("Invalid value for Stock unit on pallet: " & obj_record.str_pallet)
+    'hndl_log.log db_log.TYPE_WARN, STR_MODULE_NAME, "create_pallet", "Invalid value for Stock unit on pallet: " & obj_record.str_pallet
 End Function
 
 Private Function update_pallet(obj_pallet As Pallet, obj_record As DBDataProcess)
-    Dim obj_process As process
+    Dim obj_process As Process
     Dim obj_step As ProcessStep
     
     Set obj_process = obj_pallet.obj_process

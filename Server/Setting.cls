@@ -95,15 +95,15 @@ Property Get Index() As Long
     End If
 End Property
 
-Property Get Name() As String
+Property Get name() As String
     If mrgSetting Is Nothing Then
-        Name = ""
+        name = ""
     Else
-        Name = mrgSetting.Value
+        name = mrgSetting.Value
     End If
 End Property
 
-Property Let Name(PropertyName As String)
+Property Let name(PropertyName As String)
     ' Name is implemented as a read-only property
     ' so you can create dependencies on Setting
     ' names in your code.
@@ -271,7 +271,7 @@ Private Function WorksheetExists(wb As Workbook, sName As String) _
     
     On Error GoTo WorksheetExistsErr
     
-    s = wb.Worksheets(sName).Name
+    s = wb.Worksheets(sName).name
     WorksheetExists = True
     Exit Function
 WorksheetExistsErr:

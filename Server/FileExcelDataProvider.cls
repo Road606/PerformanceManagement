@@ -90,7 +90,7 @@ ERR_FILE_NOT_FOUND:
         wb.SaveAs file_path ', WriteResPassword:=STR_PASSWD
         Resume Next
     Else
-        Err.raise Err.Number, Err.Source, Err.description
+        Err.raise Err.Number, Err.source, Err.description
     End If
 End Function
 
@@ -100,8 +100,8 @@ Public Function close_data()
     End If
 
     If Not wb Is ThisWorkbook Then
-        Windows(wb.Name).Visible = True
-        wb.Close SaveChanges:=bool_save_mode_on
+        Windows(wb.name).Visible = True
+        wb.Close saveChanges:=bool_save_mode_on
     End If
     
     Set wb = Nothing
@@ -109,6 +109,7 @@ End Function
 
 Public Function load_data()
     Dim obj_listener As Object
+    Dim errorMsg As MSG
 
     Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING
 
@@ -139,7 +140,9 @@ Public Function load_data()
     Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING_FINISHED
     Exit Function
 ERR_PROCESS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Unexpected error occurred during loading data. Listener: " & obj_listener.str_link_id & ", Record first column: " & rg_record.Value
+    Set errorMsg = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errorMsg.source(str_module, "load_data").text("Unexpected error occurred during loading data. Listener: " & obj_listener.str_link_id & ", Record first column: " & rg_record.Value)
+    'hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Unexpected error occurred during loading data. Listener: " & obj_listener.str_link_id & ", Record first column: " & rg_record.Value
     Resume Next
 End Function
 
