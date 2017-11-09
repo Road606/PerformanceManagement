@@ -60,6 +60,7 @@ End Function
 Public Function load_record(rg_record As Range)
     Dim obj_bin_prod_line As DBBINProdLine
     Dim obj_listener As Object
+    Dim errorMsg As MSG
 
     ' fill data in a row
     Set obj_bin_prod_line = New DBBINProdLine
@@ -77,6 +78,8 @@ Public Function load_record(rg_record As Range)
     Next
     Exit Function
 WARN_STOCK_UNIT:
+    Set errorMsg = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errorMsg.source(STR_APP_MODULE_NAME, "load_record").text("Invalid value for Stock unit on row: " & rg_record.Row)
     hndl_log.log db_log.TYPE_WARN, STR_APP_MODULE_NAME, "load_record", "Invalid value for Stock unit on row: " & rg_record.Row
     Resume Next
 End Function
@@ -84,6 +87,7 @@ End Function
 ' # interface method for listening MultiFileExcelDataProvider
 Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
+    Dim errorMsg As MSG
 
     'Set obj_current_data_provider_info = obj_provider_info
     
@@ -95,13 +99,16 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
     
     Exit Function
 WARN_LISTENER_ERR:
-    hndl_log.log db_log.TYPE_WARN, STR_APP_MODULE_NAME, "loading_data_has_finished", "Something went wrong for listener: " & obj_listener.STR_CLASS_NAME
+    Set errorMsg = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errorMsg.source(STR_APP_MODULE_NAME, "loading_data_is_about_to_start").text("Something went wrong for listener: " & obj_listener.STR_CLASS_NAME)
+    'hndl_log.log db_log.TYPE_WARN, STR_APP_MODULE_NAME, "loading_data_has_finished", "Something went wrong for listener: " & obj_listener.STR_CLASS_NAME
     Resume Next
 End Function
 
 ' # interface method for listening MultiFileExcelDataProvider
 Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
+    Dim errorMsg As MSG
     
     For Each obj_listener In col_listeners
         On Error GoTo WARN_LISTENER_ERR
@@ -113,7 +120,9 @@ Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProv
     
     Exit Function
 WARN_LISTENER_ERR:
-    hndl_log.log db_log.TYPE_WARN, STR_APP_MODULE_NAME, "loading_data_has_finished", "Something went wrong for listener: " & obj_listener.STR_CLASS_NAME
+    Set errorMsg = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errorMsg.source(STR_APP_MODULE_NAME, "loading_data_has_finished").text("Something went wrong for listener: " & obj_listener.STR_CLASS_NAME)
+    'hndl_log.log db_log.TYPE_WARN, STR_APP_MODULE_NAME, "loading_data_has_finished", "Something went wrong for listener: " & obj_listener.STR_CLASS_NAME
     Resume Next
 End Function
 

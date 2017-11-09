@@ -57,6 +57,7 @@ Private Function create_type(rg_record As Range, obj_md_dashboard As MDDashboard
 End Function
 
 Private Function create_kpi(rg_record As Range, obj_md_dashboard As MDDashboard1) As Object
+    Dim errorMsg As MSG
     Select Case rg_record.Offset(0, INT_OFFSET_SUB_TYPE).Value
         Case STR_SUB_TYPE_ON_TIME
             Set create_kpi = New CtrlKPIOnTimeResult
@@ -67,7 +68,9 @@ Private Function create_kpi(rg_record As Range, obj_md_dashboard As MDDashboard1
     
     Exit Function
 WARN_KPI_NOT_FOUND:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Unexpected error occurred during loading data. Listener: " & rg_record.Offset(0, INT_OFFSET_ID).Value
+    Set errorMsg = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errorMsg.source(str_module, "load_data").text("Unexpected error occurred during loading data. Listener: " & rg_record.Offset(0, INT_OFFSET_ID).Value)
+    'hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Unexpected error occurred during loading data. Listener: " & rg_record.Offset(0, INT_OFFSET_ID).Value
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet

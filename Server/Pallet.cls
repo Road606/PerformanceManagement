@@ -28,13 +28,13 @@ Public lng_stock_unit As Long
 'Public int_process_step_order As Integer
 'Public byte_process_status As Byte
 
-Public private_obj_process As process
+Public private_obj_process As Process
 
-Public Property Get obj_process() As process
+Public Property Get obj_process() As Process
     Set obj_process = private_obj_process
 End Property
 
-Public Property Let obj_process(obj_process As process)
+Public Property Let obj_process(obj_process As Process)
     Set private_obj_process = obj_process
     Set obj_process.obj_pallet = Me
 End Property

@@ -66,6 +66,7 @@ End Sub
 ' action
 Public Function load_data_static()
     Dim obj_data_provider As FileExcelDataProvider
+    Dim errMessage As MSG
 
     For Each obj_data_provider In col_providers
         On Error GoTo ERR_PROCESS_FILE
@@ -77,7 +78,9 @@ Public Function load_data_static()
 
     Exit Function
 ERR_PROCESS_FILE:
-    hndl_log.log db_log.TYPE_WARN, str_module, "process", _
+    Set errMessage = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errMessage.source(str_module, "process").text("An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.description)
+    'hndl_log.log db_log.TYPE_WARN, str_module, "process", _
         "An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.description
     Resume Next
 End Function
@@ -85,6 +88,7 @@ End Function
 
 Public Function load_data()
     Dim obj_data_provider As FileExcelDataProvider
+    Dim errMessage As MSG
     
     On Error GoTo ERR_PROCESSED_FILE_NOT_FOUND
     Set obj_mdl_processed_file = New MDLProcessedFile
@@ -113,13 +117,19 @@ Public Function load_data()
             
     Exit Function
 ERR_PROCESSED_FILE_NOT_FOUND:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.description
+    Set errMessage = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errMessage.source(str_module, "load_data").text(Err.Number & "->" & Err.description)
+    'hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.description
     Exit Function
 ERR_CREATE_PROVIDERS:
+    Set errMessage = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errMessage.source(str_module, "load_data").text(Err.Number & "->" & Err.description)
     hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.description
     Exit Function
 ERR_PROCESS_FILE:
-    hndl_log.log db_log.TYPE_WARN, str_module, "process", _
+    Set errMessage = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errMessage.source(str_module, "process").text("An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.description)
+    'hndl_log.log db_log.TYPE_WARN, str_module, "process", _
         "An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.description
     Resume Next
 End Function
@@ -194,6 +204,7 @@ Public Function create_data_providers_read_mode()
     Dim obj_list_files As Collection
     Dim var_file As Variant
     Dim obj_data_provider As FileExcelDataProvider
+    Dim errMessage As MSG
     
     On Error GoTo ERR_RETRIEVE_FILES
     Set obj_list_files = retrieve_files
@@ -207,10 +218,14 @@ Public Function create_data_providers_read_mode()
     Next
     Exit Function
 ERR_RETRIEVE_FILES:
-    hndl_log.log db_log.TYPE_WARN, str_module, "process", Err.Number & "->" & Err.description
+    Set errMessage = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errMessage.source(str_module, "process").text(Err.Number & "->" & Err.description)
+    'hndl_log.log db_log.TYPE_WARN, str_module, "process", Err.Number & "->" & Err.description
     Exit Function
 ERR_PROCESS_FILE:
-    hndl_log.log db_log.TYPE_WARN, str_module, "process", _
+    Set errMessage = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errMessage.source(str_module, "process").text("An error occured during processing file " & var_file & ". Original error message>" & Err.description)
+    'hndl_log.log db_log.TYPE_WARN, str_module, "process", _
         "An error occured during processing file " & var_file & ". Original error message>" & Err.description
     Exit Function
 End Function
@@ -302,6 +317,7 @@ End Function
 
 Public Function close_providers()
     Dim obj_provider As FileExcelDataProvider
+    Dim errMessage As MSG
     
     On Error GoTo WARN_CLOSING_PROVIDER_FAILED
     For Each obj_provider In col_providers
@@ -311,7 +327,9 @@ Public Function close_providers()
     On Error GoTo 0
     Exit Function
 WARN_CLOSING_PROVIDER_FAILED:
-    hndl_log.log db_log.TYPE_WARN, str_module, "close_providers", _
+    Set errMessage = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errMessage.source(str_module, "close_providers").text("Closing provider: " & obj_provider.str_id & " has failed.")
+    'hndl_log.log db_log.TYPE_WARN, str_module, "close_providers", _
         "Closing provider: " & obj_provider.str_id & " has failed."
 End Function
 

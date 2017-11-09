@@ -8,6 +8,10 @@ Public Const INF As Integer = 3
 Public Const WRN As Integer = 4
 Public Const ERRO As Integer = 5
 
+Public Const DEFAULT_SEPARATOR As String = "/"
+
+Public Const DEFAULT_DESTINATION As String = "defaultLOG"
+
 Public logging_is_enabled As Boolean
 
 Public loggers As Collection
@@ -48,7 +52,7 @@ Private Function log(lvl As Integer, destination As String, message As MSG)
 End Function
 
 Public Function add_logger(obj_logger As Object)
-    loggers.add obj_logger, obj_logger.Name
+    loggers.add obj_logger, obj_logger.name
 End Function
 
 Public Function remove_logger(logger_name As String)

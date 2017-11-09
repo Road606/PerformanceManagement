@@ -14,8 +14,8 @@ Public text_ As String
 Public params As Variant
 
 
-Public Function source(str_source As String) As MSG
-    Me.source_ = str_source
+Public Function source(str_module As String, str_function As String) As MSG
+    Me.source_ = str_module & log4VBA.DEFAULT_SEPARATOR & str_function
     Set source = Me
 End Function
 

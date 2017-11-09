@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Public obj_process As process
+Public obj_process As Process
 Public obj_master_step As ProcessMasterStep
 
 Public str_user As String

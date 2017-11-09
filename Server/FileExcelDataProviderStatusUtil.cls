@@ -129,6 +129,7 @@ End Function
 Public Function retrieve_provider_id_reverse(str_file_name) As String
     Dim regex As Object
     Dim match As Object
+    Dim errorMsg As MSG
     
     Set regex = CreateObject("VBScript.RegExp")
     regex.Pattern = str_regex_pattern
@@ -139,7 +140,9 @@ Public Function retrieve_provider_id_reverse(str_file_name) As String
     On Error GoTo 0
     Exit Function
 ERR_RETRIEVAL_FAILED:
-    hndl_log.log db_log.TYPE_WARN, str_module, "retrieve_provider_id", "Retrieval of provider has failed. Pattern: " & str_regex_pattern & ", Filename: " & str_file_name & "."
+    Set errorMsg = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, errorMsg.source(str_module, "retrieve_provider_id").text("Retrieval of provider has failed. Pattern: " & str_regex_pattern & ", Filename: " & str_file_name & ".")
+    'hndl_log.log db_log.TYPE_WARN, str_module, "retrieve_provider_id", "Retrieval of provider has failed. Pattern: " & str_regex_pattern & ", Filename: " & str_file_name & "."
 End Function
 
 Public Function retrieve_provider_status_reverse(str_file_name) As String
